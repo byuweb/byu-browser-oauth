@@ -7,6 +7,7 @@
 * Indeterminate
 * Refreshing
 * Expired
+* Error
 
 # Data Structures
 
