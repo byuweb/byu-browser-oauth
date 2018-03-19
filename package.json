@@ -1,5 +1,5 @@
 {
-  "name": "byu-browser-oauth",
+  "name": "@byuweb/browser-oauth",
   "version": "1.0.0",
   "description": "Pluggable facade for OAuth authentication in the browser",
   "main": "byu-browser-oauth.js",
