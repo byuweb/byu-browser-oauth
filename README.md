@@ -26,13 +26,13 @@ At this time, this library is intended to be bundled into any libraries or appli
 Installation is via NPM or Yarn:
 
 ```
-npm install --save byu-browser-oauth
+npm install --save @byuweb/browser-oauth
 ```
 
 Or
 
 ```
-yarn add byu-browser-oauth
+yarn add @byuweb/browser-oauth
 ```
 
 # API Overview
@@ -41,7 +41,7 @@ The library is distributed as an ES Module.
 
 ```javascript
 
-import * as authn from './node_modules/byu-browser-oauth/byu-browser-oauth.js';
+import * as authn from './node_modules/@byuweb/browser-oauth/byu-browser-oauth.js';
 
 ```
 
