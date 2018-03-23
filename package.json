@@ -1,6 +1,6 @@
 {
   "name": "@byuweb/browser-oauth",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pluggable facade for OAuth authentication in the browser",
   "main": "byu-browser-oauth.js",
   "repository": "git@github.com:byuweb/byu-browser-oauth.git",
