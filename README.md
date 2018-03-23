@@ -47,7 +47,7 @@ import * as authn from './node_modules/@byuweb/browser-oauth/byu-browser-oauth.j
 
 ## Data Types
 
-There are two main data types: `User` and `Token`.
+There are three main data types: `User`, `Token`, and `AuthenticationError`.
 
 ### User
 
@@ -58,7 +58,7 @@ There are two main data types: `User` and `Token`.
     netId: '',
     name: {
         sortName: 'Student, Joseph Q',
-        fullName: 'Joe Student', //constructed from givenName, familyName, and familyNamePosition
+        displayName: 'Joe Student', //constructed from givenName, familyName, and familyNamePosition
         givenName: 'Joe', //preferred first name
         familyName: 'Student',
         familyNamePosition: 'L', //or 'F', for 'Last' and 'First'
@@ -83,22 +83,26 @@ There are two main data types: `User` and `Token`.
 }
 ```
 
-## onStateChange
+## AuthenticationObserver
 
-The most important function is `onStateChange`. This function allows the caller to be notified of 
-all changes to the application's authentication state.
+`AuthenticationObserver` allows you to be notified when the authentication state changes.
 
 ```javascript
-    authn.onStateChange(({state, token, user, error}) => {
+    const observer = new authn.AuthenticationObserver(({state, token, user, error}) => {
         // React to change
     });
 ```
 
-When `onStateChange` is called, the authentication provider will be immediately queried for its current state, and will pass that
-state to the callback.
+When an `AuthenticationObserver` is created, the authentication provider will be immediately queried for its current state, and will pass that
+state to the callback. If you wish to disable this immediate callback, set the `notifyCurrent` option to false:
 
-It is always a best-practice to remove event listeners when they are no longer needed (such as when a Web Component is disconnected
-from the DOM). You can remove the event listener used by `onStateChange` by storing the return value of the initial call:
+```javascript
+    const observer = new authn.AuthenticationObserver(({state, token, user, error}) => {
+        // React to changes, but not the initial state
+    }, { notifyCurrent: false });
+```
+
+When you're done with the observer, like in the `disconnectedCallback()` method of a Web Component, call `disconnect()`
 
 ```javascript
     const observer = authn.onStateChange(({state, token, user, error}) => {
@@ -106,7 +110,7 @@ from the DOM). You can remove the event listener used by `onStateChange` by stor
     });
 
     //in disconnectedCallback():
-    observer.offStateChange();
+    observer.disconnect();
 ```
 
 ### Authentication States
@@ -123,7 +127,7 @@ State Name | Meaning
 
 ## Current Values
 
-Helper function are provided to get the current authentication state.
+Helper function are provided to get the current authentication state. These functions all return a Promise with the requested value.
 
 ### `authn.state()`
 
@@ -131,7 +135,7 @@ Get the current authentication state.
 
 ### `authn.hasToken()`
 
-Returns `true` if there is a current, unexpired authentication token.
+Resolves to `true` if there is a current, unexpired authentication token.
 
 ### `authn.token()`
 
@@ -141,7 +145,7 @@ Gets the current authentication token object.
 
 If we have a current token, get the computed `Authorization` header value.
 
-### `authn.user`
+### `authn.user()`
 
 Get the current user object
 

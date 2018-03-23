@@ -33,13 +33,13 @@
     personId: '',
     byuId: '',
     netId: '',
-    name: {
-        sortName: 'Student, Joseph Q',
-        fullName: 'Joe Student', //constructed from givenName, familyName, and familyNamePosition
-        givenName: 'Joe', //preferred first name
-        familyName: 'Student',
-        familyNamePosition: 'L', //or 'F'
-    },
+
+    sortName: 'Student, Joseph Q',
+    displayName: 'Joe Student', //constructed from givenName, familyName, and familyNamePosition
+    givenName: 'Joe', //preferred first name
+    familyName: 'Student',
+    familyNamePosition: 'L', //or 'F'
+
     rawUserInfo: {},
 }
 ```

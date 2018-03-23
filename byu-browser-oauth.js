@@ -14,100 +14,103 @@
  * limitations under the License.
  */
 
-export const EVENT_PREFIX = 'byu-browser-oauth';
+import {
+    EVENT_STATE_CHANGE,
+    EVENT_LOGIN_REQUESTED,
+    EVENT_LOGOUT_REQUESTED,
+    EVENT_REFRESH_REQUESTED,
+    EVENT_CURRENT_INFO_REQUESTED,
 
-export const STATE_CHANGE_EVENT = `${EVENT_PREFIX}-state-changed`;
-export const LOGIN_REQUESTED_EVENT = `${EVENT_PREFIX}-login-requested`;
-export const LOGOUT_REQUESTED_EVENT = `${EVENT_PREFIX}-logout-requested`;
-export const REFRESH_REQUESTED_EVENT = `${EVENT_PREFIX}-refresh-requested`;
-export const STATE_REQUESTED_EVENT = `${EVENT_PREFIX}-state-requested`;
+    STATE_INDETERMINATE,
+    STATE_AUTHENTICATED,
+    STATE_UNAUTHENTICATED,
+} from './constants.js';
 
-export const STATE_INDETERMINATE = 'indeterminate';
-export const STATE_UNAUTHENTICATED = 'unauthenticated';
-export const STATE_AUTHENTICATED = 'authenticated';
-export const STATE_AUTHENTICATING = 'authenticating';
-export const STATE_REFRESHING = 'refreshing';
-export const STATE_EXPIRED = 'expired';
-export const STATE_ERROR = 'error';
+export * from './constants.js';
 
-let store = {state: STATE_INDETERMINATE};
-
-let observer = onStateChange(detail => {
-    store = detail;
-});
-
-export function onStateChange(callback) {
-    const func = function(e) {
-        callback(e.detail);
-    };
-    document.addEventListener(STATE_CHANGE_EVENT, func, false);
-    if (store.state === STATE_INDETERMINATE) {
-        dispatch(STATE_REQUESTED_EVENT, {callback});
-    } else {
-        callback(store);
-    }
-    return {
-        offStateChange: function() {
-            document.removeEventListener(STATE_CHANGE_EVENT, func, false);
+export class AuthenticationObserver {
+    constructor(callback, { notifyCurrent = true } = {} ) {
+        this._listener = function (e) {
+            callback(e.detail);
+        };
+        document.addEventListener(EVENT_STATE_CHANGE, this._listener, false);
+        if (notifyCurrent) {
+            dispatch(EVENT_CURRENT_INFO_REQUESTED, { callback });
         }
     }
+
+    disconnect() {
+        document.removeEventListener(EVENT_STATE_CHANGE, this._listener, false);
+    }
 }
 
-export function state() {
-    return store.state;
+async function queryCurrentInfo() {
+    return new Promise((resolve, reject) => {
+        const callback = (detail) => {
+            if (detail.error) {
+                reject(detail.error);
+            } else {
+                resolve(detail);
+            }
+        };
+        dispatch(EVENT_CURRENT_INFO_REQUESTED, { callback });
+    });
 }
 
-export function hasToken() {
-    return !!store.token;
+export async function state() {
+    const info = await queryCurrentInfo();
+    return info.state;
 }
 
-export function token() {
-    return store.token;
+export async function hasToken() {
+    return !!await token();
 }
 
-export function authorizationHeader() {
-    return store.token && store.token.authorizationHeader;
+export async function token() {
+    const info = await queryCurrentInfo();
+    return info.token;
 }
 
-export function user() {
-    return store.user;
+export async function authorizationHeader() {
+    const {token = {}} = await queryCurrentInfo();
+    return token.authorizationHeader;
 }
 
-export function login() {
+export async function user() {
+    const info = await queryCurrentInfo();
+    return info.user;
+}
+
+export async function login() {
     const promise = promiseState([STATE_AUTHENTICATED])
-    dispatch(LOGIN_REQUESTED_EVENT);
+    dispatch(EVENT_LOGIN_REQUESTED);
     return promise;
 }
 
-export function logout() {
+export async function logout() {
     const promise = promiseState([STATE_UNAUTHENTICATED]);
-    dispatch(LOGOUT_REQUESTED_EVENT);
+    dispatch(EVENT_LOGOUT_REQUESTED);
     return promise;
 }
 
-export function refresh() {
+export async function refresh() {
     const promise = promiseState([STATE_AUTHENTICATED, STATE_UNAUTHENTICATED]);
-    dispatch(REFRESH_REQUESTED_EVENT);
+    dispatch(EVENT_REFRESH_REQUESTED);
     return promise;
-}
-
-export function teardown() {
-    observer.offStateChange();
-    store = {state: STATE_INDETERMINATE};
 }
 
 function promiseState(desiredStates) {
     if (!window.Promise) {
-        return null;
+        return {then: () => {}, catch: () => {}, finally: () => {}};
     }
     return new Promise((resolve, reject) => {
-        const observer = onStateChange(({state, token, user, error}) => {
+        const observer = new AuthenticationObserver(({ state, token, user, error }) => {
             if (error) {
                 reject(error);
                 observer.offStateChange();
             } else if (desiredStates.indexOf(state) >= 0) {
-                resolve({state, token, user});
-                observer.offStateChange();
+                resolve({ state, token, user });
+                observer.disconnect();
             }
         });
     });
@@ -116,7 +119,7 @@ function promiseState(desiredStates) {
 function dispatch(name, detail) {
     let event;
     if (typeof window.CustomEvent === 'function') {
-        event = new CustomEvent(name, {detail});
+        event = new CustomEvent(name, { detail });
     } else {
         event = document.createEvent('CustomEvent');
         event.initCustomEvent(name, true, false, detail);

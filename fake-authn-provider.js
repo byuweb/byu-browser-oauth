@@ -1,36 +1,35 @@
+
 import * as authn from './byu-browser-oauth.js';
 
 export class FakeProvider {
-    constructor(args) {
-        const { noInitListeners } = args || {};
-        this.state = authn.STATE_INDETERMINATE;
-        this.token = null;
-        this.user = null;
+    constructor({ noInitListeners, state, token, user } = {}) {
+        this.state = state || authn.STATE_INDETERMINATE;
+        this.token = token;
+        this.user = user;
         if (!noInitListeners) {
             this.initListeners();
         }
     }
 
     initListeners() {
-        this._stateReqObserver = ({ detail }) => {
+        this._observer = ({ detail }) => {
             detail.callback(this);
         };
 
-        document.addEventListener(authn.STATE_REQUESTED_EVENT, this._stateReqObserver, false);
+        document.addEventListener(authn.EVENT_CURRENT_INFO_REQUESTED, this._observer, false);
     }
 
-    setState(state, token, user, callback) {
+    setState(state, token, user) {
         this.state = state;
         this.token = token;
         this.user = user;
-        dispatch(authn.STATE_CHANGE_EVENT, {state, token, user});
-        setTimeout(callback);
+        dispatch(authn.EVENT_STATE_CHANGE, {state, token, user});
     }
 
-    teardown() {
-        dispatch(authn.STATE_CHANGE_EVENT, {state: authn.STATE_INDETERMINATE});
+    disconnect() {
         if (this._observer) {
-            document.removeEventListener(authn.STATE_REQUESTED_EVENT, this._stateReqObserver, false);
+            document.removeEventListener(authn.EVENT_CURRENT_INFO_REQUESTED, this._observer, false);
+            delete this._observer;
         }
     }
 }

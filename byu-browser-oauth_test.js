@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import * as authn from './byu-browser-oauth.js';
-import {FakeProvider} from './fake-authn-provider.js';
+import { FakeProvider } from './fake-authn-provider.js';
 
 const fakeToken = {
     bearer: 'aabbccdd',
@@ -32,76 +32,128 @@ const fakeUser = {
     personId: '000111222',
     byuId: '222111000',
     netId: 'fakestu1',
-    name: {
-        sortName: 'Student, Fake F',
-        fullName: 'Fake Student',
-        givenName: 'Fake',
-        familyName: 'Student',
-        familyNamePosition: 'L'
-    },
+    sortName: 'Student, Fake F',
+    displayName: 'Fake Student',
+    givenName: 'Fake',
+    familyName: 'Student',
+    familyNamePosition: 'L',
     rawUserInfo: {}
 };
 
 describe('byu-browser-oauth', function () {
-    let provider;
-    let observers = [];
-    afterEach(function () {
-        for (let o of observers) {
-            o.offStateChange();
-        }
-        observers = [];
+    describe('AuthenticationObserver', function () {
+        it('passes initial state to the provided callback', function (done) {
+            const prov = new FakeProvider({
+                state: authn.STATE_AUTHENTICATED,
+                user: fakeUser,
+                token: fakeToken,
+            });
 
-        if (provider) {
-            provider.teardown();
-        }
-    });
-    it('starts with state \'indeterminate\'', function () {
-        expect(authn.state()).to.equal('indeterminate');
-    });
-
-    describe('onStateChange', function () {
-        it('notifies the callback when state changes', function (done) {
-            provider = new FakeProvider({ noInitListeners: true });
-
-            testOnStateChange(({ state, token, user }) => {
-                expect(state).to.equal(authn.STATE_AUTHENTICATED, 'detail.state');
-                expect(authn.state()).to.equal(authn.STATE_AUTHENTICATED, 'state()');
-
-                expect(token).to.eql(fakeToken, 'detail.token');
-                expect(authn.token()).to.eql(token, 'authn.token()');
-
-                expect(user).to.eql(fakeUser, 'detail.user');
-                expect(authn.user()).to.eql(user);
+            const obs = new authn.AuthenticationObserver(({ state, user, token, error }) => {
+                expect(state).to.eql(authn.STATE_AUTHENTICATED);
                 done();
             });
 
-            provider.setState(authn.STATE_AUTHENTICATED, fakeToken, fakeUser);
+            afterEach(() => {
+                obs.disconnect();
+                prov.disconnect();
+            });
         });
 
-        it('notifies the callback of the initial state', function (done) {
-            provider = new FakeProvider();
+        it('can skip the initial state callback');
 
-            provider.setState(authn.STATE_AUTHENTICATING, null, null, function () {
-                testOnStateChange(({ state, token, user }) => {
-                    expect(state).to.equal(authn.STATE_AUTHENTICATING, 'detail.state');
-                    expect(authn.state()).to.equal(authn.STATE_AUTHENTICATING, 'state()');
+        it('receives updates to the initial state', function (done) {
+            const prov = new FakeProvider({});
+            const obs = new authn.AuthenticationObserver(({ state, user, token, error }) => {
+                expect(state).to.eql(authn.STATE_AUTHENTICATED);
+                done();
+            }, { notifyCurrent: false });
 
-                    expect(token).to.be.null;
-                    expect(authn.token()).to.be.null;
+            prov.setState(authn.STATE_AUTHENTICATED, fakeToken, fakeUser);
 
-                    expect(user).to.be.null;
-                    expect(authn.user()).to.be.null;
-
-                    done();
-                })
-
+            afterEach(() => {
+                obs.disconnect();
+                prov.disconnect();
             });
+        });
+
+        it('does not fire events after being disconnected', function (done) {
+            let obs;
+            const prov = new FakeProvider({});
+
+            afterEach(() => {
+                prov.disconnect();
+                if (obs) { obs.disconnect(); }
+            });
+
+            obs = new authn.AuthenticationObserver(({ state, user, token, error }) => {
+                done('Should not have called the callback');
+            }, { notifyCurrent: false });
+            obs.disconnect();
+
+            setTimeout(done, 100);
         });
     });
 
-    function testOnStateChange(callback) {
-        const observer = authn.onStateChange(callback); 
-        observers.push(observer);
-        return observer;
-    }
+    describe('Helper functions', function () {
+        describe('state()', function () {
+            it('returns the current authentication state', async function () {
+                const prov = new FakeProvider({state: authn.STATE_AUTHENTICATED, token: fakeToken, user: fakeUser});
+                afterEach(() => prov.disconnect());
+
+                expect(await authn.state()).to.equal(authn.STATE_AUTHENTICATED);
+            });
+        });
+        describe('user()', function() {
+            it('returns falsey if there is no user', async function() {
+                const prov = new FakeProvider({state: authn.STATE_UNAUTHENTICATED});
+                afterEach(() => prov.disconnect());
+
+                expect(await authn.user()).to.not.exist;
+            });
+            it('returns the current user', async function() {
+                const prov = new FakeProvider({state: authn.STATE_AUTHENTICATED, token: fakeToken, user: fakeUser});
+                afterEach(() => prov.disconnect());
+
+                expect(await authn.user()).to.eql(fakeUser);
+            });
+        });
+        describe('token()', function() {
+            it('returns falsey if there is no token', async function() {
+                const prov = new FakeProvider({state: authn.STATE_UNAUTHENTICATED});
+                afterEach(() => prov.disconnect());
+
+                expect(await authn.token()).to.not.exist;
+            });
+            it('returns the current token', async function() {
+                const prov = new FakeProvider({state: authn.STATE_AUTHENTICATED, token: fakeToken, user: fakeUser});
+                afterEach(() => prov.disconnect());
+
+                expect(await authn.token()).to.eql(fakeToken);
+            });
+        });
+        describe('authorizationHeader()', function() {
+            it('returns falsey if there is no token', async function() {
+                const prov = new FakeProvider({state: authn.STATE_UNAUTHENTICATED});
+                afterEach(() => prov.disconnect());
+
+                expect(await authn.authorizationHeader()).to.not.exist;
+            });
+            it('returns the current authorization header', async function() {
+                const prov = new FakeProvider({state: authn.STATE_AUTHENTICATED, token: fakeToken, user: fakeUser});
+                afterEach(() => prov.disconnect());
+
+                expect(await authn.authorizationHeader()).to.eql(fakeToken.authorizationHeader);
+            });
+        });
+    });
+    describe('login()', function() {
+        it('exists');
+    });
+    describe('logout()', function() {
+        it('exists');
+    });
+    describe('refresh()', function() {
+        it('exists');
+    });
 });

@@ -2,6 +2,7 @@
 // Generated on Fri Mar 16 2018 16:09:15 GMT-0600 (MDT)
 
 module.exports = function (config) {
+  const userBrowsers = config.browsers;
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -11,8 +12,7 @@ module.exports = function (config) {
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['mocha', 'chai', 'detectBrowsers'],
-
-
+ 
     // list of files / patterns to load in the browser
     files: [
       {
@@ -46,11 +46,11 @@ module.exports = function (config) {
     },
 
     detectBrowsers: {
-      enabled: true,
+      enabled: userBrowsers.length === 0,
       usePhantomJS: false,
+      preferHeadless: true,
       postDetection: function(available) {
         const result = available;
-        console.log(available);
         const chrome = available.indexOf('Chrome');
         if (chrome > -1) {
           result.splice(chrome, 1, 'ChromeHeadless')
@@ -85,8 +85,6 @@ module.exports = function (config) {
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     // browsers: ['Chrome', 'Firefox', 'Safari', 'IE'],
-    browsers: ['ChromeHeadless'],
-
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
