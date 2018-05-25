@@ -16,11 +16,11 @@ module.exports = function (config) {
     // list of files / patterns to load in the browser
     files: [
       {
-        pattern: '*_test.js',
+        pattern: '*_test.mjs',
         watched: false,//Our rollup preprocessor handles watching
       },
       {
-        pattern: 'byu-browser-oauth.js',
+        pattern: 'byu-browser-oauth.mjs',
         included: false,
       }
     ],
@@ -34,7 +34,7 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      '**/*_test.js': ['rollup'],
+      '**/*_test.mjs': ['rollup'],
     },
 
     rollupPreprocessor: {

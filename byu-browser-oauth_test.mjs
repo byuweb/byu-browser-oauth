@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as authn from './byu-browser-oauth.js';
-import { FakeProvider } from './fake-authn-provider.js';
+import * as authn from './byu-browser-oauth.mjs';
+import { FakeProvider } from './fake-authn-provider.mjs';
 
 const fakeToken = {
     bearer: 'aabbccdd',
