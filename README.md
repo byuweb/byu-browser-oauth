@@ -41,11 +41,13 @@ The library is distributed as an ES Module.
 
 ```javascript
 
-import * as authn from byu-browser-oauth.mjs;
+import * as authn from './node_modules/@byuweb/browser-oauth/byu-browser-oauth.js';
 
 ```
 
-## Data Tbyu-browser-oauth.mjse main data types: `User`, `Token`, and `AuthenticationError`.
+## Data Types
+
+There are three main data types: `User`, `Token`, and `AuthenticationError`.
 
 ### User
 

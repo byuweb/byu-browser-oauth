@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "description": "Pluggable facade for OAuth authentication in the browser",
   "main": "byu-browser-oauth.js",
-  "repository": "git@github.com:byuweb/byu-browser-oauth.git",
+  "repository": "https://github.com/byuweb/byu-browser-oauth.git",
   "author": "BYU Office of Information Technology",
   "license": "Apache-2.0",
   "scripts": {
