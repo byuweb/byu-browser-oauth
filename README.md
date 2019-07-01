@@ -45,6 +45,18 @@ import * as authn from './node_modules/@byuweb/browser-oauth/byu-browser-oauth.j
 
 ```
 
+## Example
+
+For an Implicit Grant implementation of byu-browser-oauth go to https://github.com/byuweb/byu-browser-oauth-implicit and follow the instructions before proceeding.
+
+Once you have completed the instructions in the implicit grant, you can add the observer to your project to get info about the user, token, and authentication state. 
+
+```javascript
+    const observer = new authn.AuthenticationObserver(({state, token, user, error}) => {
+        // React to change
+    });
+```
+
 ## Data Types
 
 There are three main data types: `User`, `Token`, and `AuthenticationError`.
