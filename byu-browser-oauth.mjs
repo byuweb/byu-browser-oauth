@@ -93,9 +93,9 @@ export async function logout() {
     return promise;
 }
 
-export async function refresh() {
+export async function refresh(mode) {
     const promise = promiseState([STATE_AUTHENTICATED, STATE_UNAUTHENTICATED]);
-    dispatch(EVENT_REFRESH_REQUESTED);
+    dispatch(EVENT_REFRESH_REQUESTED, mode);
     return promise;
 }
 
