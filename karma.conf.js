@@ -12,7 +12,7 @@ module.exports = function (config) {
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['mocha', 'chai', 'detectBrowsers'],
- 
+
     // list of files / patterns to load in the browser
     files: [
       {
@@ -55,6 +55,13 @@ module.exports = function (config) {
         if (chrome > -1) {
           result.splice(chrome, 1, 'ChromeHeadless')
         }
+
+        // We no longer need to support IE
+        const IE = available.indexOf('IE');
+        if (IE > -1) {
+          result.splice(IE, 1)
+        }
+
         return result;
       }
     },
