@@ -1,12 +1,12 @@
 /*
  * Copyright 2018 Brigham Young University
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -60,7 +60,19 @@ describe('byu-browser-oauth', function () {
             });
         });
 
-        it('can skip the initial state callback');
+        it('can skip the initial state callback', function(done) {
+            const prov = new FakeProvider();
+            const obs = new authn.AuthenticationObserver(({ state, user, token, error }) => {
+                done('Should not have called the callback');
+            }, { notifyCurrent: false });
+
+            afterEach(() => {
+                obs.disconnect();
+                prov.disconnect();
+            });
+
+            setTimeout(done, 100);
+        });
 
         it('receives updates to the initial state', function (done) {
             const prov = new FakeProvider({});
@@ -148,12 +160,72 @@ describe('byu-browser-oauth', function () {
         });
     });
     describe('login()', function() {
-        it('exists');
+        it('sets state to Authenticated', function (done) {
+            const prov = new FakeProvider({ state: authn.STATE_UNAUTHENTICATED });
+
+            const obs = new authn.AuthenticationObserver(({ state }) => {
+                if (state == authn.STATE_UNAUTHENTICATED) {
+                    authn.login()
+                } else {
+                    expect(state).to.eql(authn.STATE_AUTHENTICATED);
+                    done();
+                }
+            });
+
+            afterEach(() => {
+                obs.disconnect();
+                prov.disconnect();
+            });
+        });
     });
     describe('logout()', function() {
-        it('exists');
+        it('sets state to Unauthenticated', function (done) {
+            const prov = new FakeProvider({
+                state: authn.STATE_AUTHENTICATED,
+                user: fakeUser,
+                token: fakeToken,
+            });
+
+            const obs = new authn.AuthenticationObserver(({ state, user }) => {
+                if (state == authn.STATE_AUTHENTICATED) {
+                    expect(user).to.eql(fakeUser);
+                    authn.logout();
+                } else {
+                    expect(state).to.eql(authn.STATE_UNAUTHENTICATED);
+                    expect(user).to.eql(null);
+                    done();
+                }
+            });
+
+            afterEach(() => {
+                obs.disconnect();
+                prov.disconnect();
+            });
+        });
     });
     describe('refresh()', function() {
-        it('exists');
+        it('refreshes token', function (done) {
+            const prov = new FakeProvider({ state: authn.STATE_INDETERMINATE });
+
+            const obs = new authn.AuthenticationObserver(({ state, token }) => {
+                if (state == authn.STATE_INDETERMINATE) {
+                    authn.refresh('background');
+                } else {
+                    expect(state).to.eql(authn.STATE_AUTHENTICATED);
+                    // NOTE: The "mode" parameter for authn.refresh normally does
+                    // *NOT* come back through as the token. But for testing
+                    // purposes we set up the FakeProvider so that it passes it
+                    // through in that field, so we can verify that it was passed in
+                    // from the authn.refresh call to the provider
+                    expect(token).to.eql('background');
+                    done();
+                }
+            });
+
+            afterEach(() => {
+                obs.disconnect();
+                prov.disconnect();
+            });
+        });
     });
 });
