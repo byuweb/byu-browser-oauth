@@ -160,7 +160,7 @@ describe('byu-browser-oauth', function () {
         });
     });
     describe('login()', function() {
-        it('sets state to Authenticated', function (done) {
+        it('dispatches login event to provider', function (done) {
             const prov = new FakeProvider();
 
             const obs = new authn.AuthenticationObserver(({ state }) => {
@@ -178,7 +178,7 @@ describe('byu-browser-oauth', function () {
         });
     });
     describe('logout()', function() {
-        it('sets state to Unauthenticated and clears user and token', function (done) {
+        it('dispatches logout event to provider', function (done) {
             const prov = new FakeProvider({
                 state: authn.STATE_AUTHENTICATED,
                 user: fakeUser,
@@ -202,7 +202,7 @@ describe('byu-browser-oauth', function () {
         });
     });
     describe('refresh()', function() {
-        it('refreshes token', function (done) {
+        it('dispatches refresh event to provider', function (done) {
             const prov = new FakeProvider();
 
             const obs = new authn.AuthenticationObserver(({ state, token }) => {
