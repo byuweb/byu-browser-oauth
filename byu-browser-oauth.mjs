@@ -107,7 +107,7 @@ function promiseState(desiredStates) {
         const observer = new AuthenticationObserver(({ state, token, user, error }) => {
             if (error) {
                 reject(error);
-                observer.offStateChange();
+                observer.disconnect();
             } else if (desiredStates.indexOf(state) >= 0) {
                 resolve({ state, token, user });
                 observer.disconnect();

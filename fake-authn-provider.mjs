@@ -22,6 +22,9 @@ export class FakeProvider {
             this.setState(authn.STATE_UNAUTHENTICATED, null, null)
         }
         this._refreshObserver = ({ detail }) => {
+            if (detail == 'fail') {
+                this.setState(authn.STATE_ERROR, null, null, 'failure')
+            }
             // For testing, we're just passing through the "detail" field as the token, so
             // the test observer can easily verify that it was passed through
             this.setState(authn.STATE_AUTHENTICATED, detail, this.user)
@@ -33,11 +36,11 @@ export class FakeProvider {
         document.addEventListener(authn.EVENT_REFRESH_REQUESTED, this._refreshObserver, false);
     }
 
-    setState(state, token, user) {
+    setState(state, token, user, error) {
         this.state = state;
         this.token = token;
         this.user = user;
-        dispatch(authn.EVENT_STATE_CHANGE, {state, token, user});
+        dispatch(authn.EVENT_STATE_CHANGE, {state, token, user, error});
     }
 
     disconnect() {

@@ -194,5 +194,16 @@ describe('byu-browser-oauth', function () {
             // from the authn.refresh call to the provider
             expect(result.token).to.eql('background')
         });
+        it('manually-triggered refresh failure', function (done) {
+            const prov=  new FakeProvider();
+            afterEach(() => prov.disconnect());
+
+            authn.refresh('fail')
+              .then(() => done('should not have succeeded'))
+              .catch(err => {
+                  expect(err).to.eql('failure'); // failure message coded in FakeProvider
+                  done()
+              })
+        })
     });
 });
