@@ -75,7 +75,7 @@ describe('byu-browser-oauth', function () {
         });
 
         it('receives updates to the initial state', function (done) {
-            const prov = new FakeProvider({});
+            const prov = new FakeProvider();
             const obs = new authn.AuthenticationObserver(({ state, user, token, error }) => {
                 expect(state).to.eql(authn.STATE_AUTHENTICATED);
                 done();
@@ -161,16 +161,15 @@ describe('byu-browser-oauth', function () {
     });
     describe('login()', function() {
         it('sets state to Authenticated', function (done) {
-            const prov = new FakeProvider({ state: authn.STATE_UNAUTHENTICATED });
+            const prov = new FakeProvider();
 
             const obs = new authn.AuthenticationObserver(({ state }) => {
-                if (state == authn.STATE_UNAUTHENTICATED) {
-                    authn.login()
-                } else {
-                    expect(state).to.eql(authn.STATE_AUTHENTICATED);
+                if (state == authn.STATE_AUTHENTICATED) {
                     done();
                 }
             });
+
+            authn.login()
 
             afterEach(() => {
                 obs.disconnect();
@@ -179,23 +178,22 @@ describe('byu-browser-oauth', function () {
         });
     });
     describe('logout()', function() {
-        it('sets state to Unauthenticated', function (done) {
+        it('sets state to Unauthenticated and clears user and token', function (done) {
             const prov = new FakeProvider({
                 state: authn.STATE_AUTHENTICATED,
                 user: fakeUser,
                 token: fakeToken,
             });
 
-            const obs = new authn.AuthenticationObserver(({ state, user }) => {
-                if (state == authn.STATE_AUTHENTICATED) {
-                    expect(user).to.eql(fakeUser);
-                    authn.logout();
-                } else {
-                    expect(state).to.eql(authn.STATE_UNAUTHENTICATED);
+            const obs = new authn.AuthenticationObserver(({ state, user, token }) => {
+                if (state == authn.STATE_UNAUTHENTICATED) {
                     expect(user).to.eql(null);
+                    expect(token).to.eql(null);
                     done();
                 }
             });
+
+            authn.logout()
 
             afterEach(() => {
                 obs.disconnect();
@@ -205,22 +203,21 @@ describe('byu-browser-oauth', function () {
     });
     describe('refresh()', function() {
         it('refreshes token', function (done) {
-            const prov = new FakeProvider({ state: authn.STATE_INDETERMINATE });
+            const prov = new FakeProvider();
 
             const obs = new authn.AuthenticationObserver(({ state, token }) => {
-                if (state == authn.STATE_INDETERMINATE) {
-                    authn.refresh('background');
-                } else {
-                    expect(state).to.eql(authn.STATE_AUTHENTICATED);
+                if (state == authn.STATE_AUTHENTICATED) {
                     // NOTE: The "mode" parameter for authn.refresh normally does
                     // *NOT* come back through as the token. But for testing
-                    // purposes we set up the FakeProvider so that it passes it
-                    // through in that field, so we can verify that it was passed in
+                    // purposes we set up the FakeProvider so that it passes the "mode" parameter
+                    // through to the "token" field, so we can verify that it was passed
                     // from the authn.refresh call to the provider
                     expect(token).to.eql('background');
                     done();
                 }
             });
+
+            authn.refresh('background');
 
             afterEach(() => {
                 obs.disconnect();
