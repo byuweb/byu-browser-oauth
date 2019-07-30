@@ -144,6 +144,20 @@ describe('byu-browser-oauth', function () {
                 expect(await authn.token()).to.eql(fakeToken);
             });
         });
+        describe('hasToken()', function() {
+            it('returns false if there is no token', async function() {
+                const prov = new FakeProvider({state: authn.STATE_UNAUTHENTICATED});
+                afterEach(() => prov.disconnect());
+
+                expect(await authn.hasToken()).to.be.false;
+            });
+            it('returns true if there is a token', async function() {
+                const prov = new FakeProvider({state: authn.STATE_AUTHENTICATED, token: fakeToken, user: fakeUser});
+                afterEach(() => prov.disconnect());
+
+                expect(await authn.hasToken()).to.be.true;
+            });
+        });
         describe('authorizationHeader()', function() {
             it('returns falsey if there is no token', async function() {
                 const prov = new FakeProvider({state: authn.STATE_UNAUTHENTICATED});
