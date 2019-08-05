@@ -1,5 +1,5 @@
 
-import * as authn from './byu-browser-oauth.mjs';
+import * as authn from './byu-browser-oauth.js';
 
 export class FakeProvider {
     constructor({ noInitListeners, state, token, user } = {}) {

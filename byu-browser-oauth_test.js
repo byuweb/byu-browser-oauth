@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import * as authn from './byu-browser-oauth.mjs';
-import { FakeProvider } from './fake-authn-provider.mjs';
+import { FakeProvider } from './fake-authn-provider.js';
 
 const fakeToken = {
     bearer: 'aabbccdd',
