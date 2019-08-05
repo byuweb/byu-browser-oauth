@@ -1,6 +1,8 @@
 // Karma configuration
 // Generated on Fri Mar 16 2018 16:09:15 GMT-0600 (MDT)
 
+const istanbul = require('rollup-plugin-istanbul');
+
 module.exports = function (config) {
   const userBrowsers = config.browsers;
   config.set({
@@ -12,7 +14,7 @@ module.exports = function (config) {
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['mocha', 'chai', 'detectBrowsers'],
- 
+
     // list of files / patterns to load in the browser
     files: [
       {
@@ -42,7 +44,10 @@ module.exports = function (config) {
         format: 'iife',
         name: 'byuBrowserOauth',
         sourcemap: 'inline',
-      }
+      },
+      plugins: [
+        istanbul({ exclude: ['*_test.mjs', 'fake-*.mjs', 'node_modules/**/*'] }),
+      ]
     },
 
     detectBrowsers: {
@@ -55,6 +60,13 @@ module.exports = function (config) {
         if (chrome > -1) {
           result.splice(chrome, 1, 'ChromeHeadless')
         }
+
+        // We no longer need to support IE
+        const IE = available.indexOf('IE');
+        if (IE > -1) {
+          result.splice(IE, 1)
+        }
+
         return result;
       }
     },
@@ -62,7 +74,10 @@ module.exports = function (config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: [
+      'progress',
+      'coverage',
+    ],
 
 
     // web server port

@@ -93,9 +93,9 @@ export async function logout() {
     return promise;
 }
 
-export async function refresh(mode) {
+export async function refresh(providerOptions) {
     const promise = promiseState([STATE_AUTHENTICATED, STATE_UNAUTHENTICATED]);
-    dispatch(EVENT_REFRESH_REQUESTED, mode);
+    dispatch(EVENT_REFRESH_REQUESTED, providerOptions);
     return promise;
 }
 
@@ -107,7 +107,7 @@ function promiseState(desiredStates) {
         const observer = new AuthenticationObserver(({ state, token, user, error }) => {
             if (error) {
                 reject(error);
-                observer.offStateChange();
+                observer.disconnect();
             } else if (desiredStates.indexOf(state) >= 0) {
                 resolve({ state, token, user });
                 observer.disconnect();

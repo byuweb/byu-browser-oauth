@@ -11,22 +11,23 @@
     "watch-test": "karma start --browsers ChromeHeadless"
   },
   "devDependencies": {
-    "chai": "^4.1.2",
+    "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "karma": "^2.0.0",
+    "karma": "^4.2.0",
     "karma-chai": "^0.1.0",
-    "karma-chrome-launcher": "^2.2.0",
-    "karma-detect-browsers": "~2.2.6",
+    "karma-chrome-launcher": "^3.0.0",
+    "karma-coverage": "^1.1.2",
+    "karma-detect-browsers": "~2.3.3",
     "karma-edge-launcher": "^0.4.2",
     "karma-firefox-launcher": "^1.1.0",
-    "karma-ie-launcher": "^1.0.0",
     "karma-mocha": "^1.3.0",
     "karma-opera-launcher": "^1.0.0",
-    "karma-rollup-preprocessor": "^5.1.1",
+    "karma-rollup-preprocessor": "^7.0.2",
     "karma-safari-launcher": "^1.0.0",
-    "karma-safaritechpreview-launcher": "^0.0.6",
-    "mocha": "^5.0.4",
-    "rollup": "^0.57.1"
+    "karma-safaritechpreview-launcher": "^2.0.2",
+    "mocha": "^6.2.0",
+    "rollup": "^1.17.0",
+    "rollup-plugin-istanbul": "^2.0.1"
   },
   "publishConfig": {
     "access": "public"
