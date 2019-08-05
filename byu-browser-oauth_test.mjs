@@ -201,9 +201,9 @@ describe('byu-browser-oauth', function () {
 
             const result = await authn.refresh('background');
             expect(result.state).to.eql(authn.STATE_AUTHENTICATED);
-            // NOTE: The "mode" parameter for authn.refresh normally does
+            // NOTE: The "providerOptions" parameter for authn.refresh normally does
             // *NOT* come back through as the token. But for testing
-            // purposes we set up the FakeProvider so that it passes the "mode" parameter
+            // purposes we set up the FakeProvider so that it passes the "providerOptions" parameter
             // through to the "token" field, so we can verify that it was passed
             // from the authn.refresh call to the provider
             expect(result.token).to.eql('background')
