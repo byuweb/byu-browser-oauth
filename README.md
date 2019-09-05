@@ -15,7 +15,8 @@ on this library, and should bundle this library into their deployment artifacts.
 
 Applications which use any such libraries or components must then use a compatible OAuth provider library:
 
-* (TODO: implement and list provider libraries).
+* https://github.com/byuweb/byu-browser-oauth-implicit
+* (others will be listed when they are created)
 
 Applications may also wish to depend on this library directly.
 
@@ -198,11 +199,14 @@ authn.logout()
 Causes the authentication provider to refresh an expired token.
 
 ```javascript
-authn.refresh()
+authn.refresh(providerOptions)
     .then(({state, error}) => {
         // If we don't have to redirect the browser, you can respond to the completed refresh here
     });
 ```
+
+The `providerOptions` parameter contains any optional provider-specific options.
+For example, the Implicit Grant provider lets you specify whether the refresh should be attempted invisibly to the user in an `iframe`, or visibly in a `popup` window.
 
 # Development
 
