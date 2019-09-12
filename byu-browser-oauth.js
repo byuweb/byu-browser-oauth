@@ -35,7 +35,12 @@ export class AuthenticationObserver {
         };
         document.addEventListener(EVENT_STATE_CHANGE, this._listener, false);
         if (notifyCurrent) {
-            dispatch(EVENT_CURRENT_INFO_REQUESTED, { callback });
+            // Using `setTimeout` to bump this `dispatch` call to the end of the processing queue, in case
+            // the `callback` function references the AuthenticationObserver object itself that's being
+            // constructed (as it does in `promiseState` below)
+            setTimeout(() => {
+                dispatch(EVENT_CURRENT_INFO_REQUESTED, { callback });
+            }, 0)
         }
     }
 
