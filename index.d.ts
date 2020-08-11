@@ -22,11 +22,41 @@ export declare class AuthenticationObserver {
     disconnect(): void
 }
 
-export declare function state(): Promise<any>
+export declare function state(): Promise<unknown>
 export declare function hasToken(): Promise<boolean>
-export declare function token(): Promise<string>
+export declare function token(): Promise<Token>
 export declare function authorizationHeader(): Promise<string>
-export declare function user(): Promise<any>
-export declare function login(): Promise<any>
-export declare function logout(): Promise<any>
-export declare function refresh(mode?: string): Promise<any>
+export declare function user(): Promise<User>
+export declare function login(): Promise<unknown>
+export declare function logout(): Promise<unknown>
+export declare function refresh(mode?: string): Promise<unknown>
+
+export interface UserNameObject {
+    displayName: string
+    familyName?: string
+    displayNamePosition?: string
+    givenName?: string
+    sortName?: string
+}
+
+export interface User {
+    email: string
+    byuId: string
+    netId: string
+    personId: string
+    name: UserNameObject
+}
+
+export interface TokenClient {
+    id: string
+    byuId: string
+    appName: string
+}
+
+export interface Token {
+    bearer: string
+    authorizationHeader: string
+    expiresAt: Date
+    client: TokenClient
+    rawUserInfo: Record<string, unknown>
+}
