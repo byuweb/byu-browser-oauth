@@ -39,12 +39,12 @@ export interface UserNameObject {
     sortName?: string
 }
 
-export interface User {
-    email: string
+export interface User<T = unknown> {
     byuId: string
     netId: string
     personId: string
     name: UserNameObject
+    rawUserInfo: T
 }
 
 export interface TokenClient {
